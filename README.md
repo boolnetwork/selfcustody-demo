@@ -2,6 +2,8 @@
 
 By combining Taproot with DHC, Bool Network enables Bitcoin DeFi with self-custody, ensuring cryptographic trust for Restaking, Bitcoin-Collateralized Stablecoin, and Bridge applications on native Bitcoin.
 
+![architecture](./res/architecture.png)
+
 ## What is Taproot?
 
 Taproot is a significant advancement in contract publication on the blockchain, addressing various concerns by enabling settlement through the publication of only relevant contract portions. This innovation not only enhances security but also introduces a new, expansive language for improved flexibility and scalability. 
@@ -73,6 +75,32 @@ Q = PK  +     H(PK | Fh)G
                 +-------------------+   +-----------------+
 ```
 
+## Channels
+
+### Whale Two-way Channel
+
+Any user is eligible to submit an application to the system to open an exclusive whale channel. After a strict review process, applicants who meet the requirements will be granted the identity of a valid channel. While ensuring the characteristics of decentralization and self-custody, this channel can successfully mint BTC into WBTC. When users use the whale channel to convert WBTC back to BTC, they need to obtain the explicit confirmation of the owner of the whale channel. If the whale owner does not confirm and exceeds the preset time-lock period of the channel, the system will intervene and safely transfer the BTC in the whale channel to the one-way channel, and this operation is called a forced withdrawal.
+
+Asset unlocking conditions: 1. The owner of the channel and the committee agree. 2. The time lock for forced withdrawal expires. 3. The escape time lock expires.
+
+### Retail Two-way Channel
+
+The retail channel, as a special case of the whale channel, has the privilege of being opened exclusively by the Bool Network team. It not only has all the functions of the whale channel but is also renowned for its automation, high-efficiency response, and convenience in handling small-amount operations, bringing users an unprecedented user experience. If it exceeds the preset time-lock period of the channel, the system will transfer the BTC in the retail channel to the one-way channel.
+
+Asset unlocking conditions: 1.The Bool Network team and the committee agree. 2. The time lock for forced withdrawal expires. 3. The escape time lock expires.
+
+### One-way Channel
+
+The one-way channel focuses on the one-way conversion from WBTC to BTC and is used to store assets from forced withdrawals. It can smoothly convert WBTC back to BTC even in the face of failures in the whale or retail channels. Once the one-way channel fails, all assets will be quickly and safely transferred to the multi-signature address to ensure the safety of the assets.
+
+Asset unlocking conditions: 1. The committee agrees. 2. The escape time lock expires.
+
+
+![channels](./res/channels.png)
+
+Two time periods that need attention are the "escape lock time" and the "forced withdrawal lock time". Generally, the escape lock time is longer than the forced withdrawal lock time. The system sets the escape lock time equal to the forced withdrawal lock time plus six months, which means that the system has a six-month response time to transfer the assets of abnormal channels to the one-way channel. Meanwhile, the escape lock time of the one-way channel is longer than that of the non-one-way channels, so that users have sufficient response time to convert WBTC back to BTC.
+
+**Note: The escape lock time of the one-way channel > The escape lock time of the non-one-way channels > The forced withdrawal lock time.**
 
 ## Working Flow
 
