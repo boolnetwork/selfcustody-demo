@@ -1,6 +1,6 @@
 # Self Custody
 
-By combining Taproot with DHC, Bool Network enables Bitcoin DeFi with self-custody, ensuring cryptographic trust for Restaking, Bitcoin-Collateralized Stablecoin, and Bridge applications on native Bitcoin.
+By combining Taproot with [DHC](https://docs.bool.network/interoperability-protocol/dynamic-hidden-committee-dhc), Bool Network enables Bitcoin DeFi with self-custody, ensuring cryptographic trust for Restaking, Bitcoin-Collateralized Stablecoin, and Bridge applications on native Bitcoin.
 
 ![architecture](./res/architecture.png)
 
@@ -79,13 +79,15 @@ Q = PK  +     H(PK | Fh)G
 
 ### Whale Two-way Channel
 
-Any user is eligible to submit an application to the system to open an exclusive whale channel. After a strict review process, applicants who meet the requirements will be granted the identity of a valid channel. While ensuring the characteristics of decentralization and self-custody, this channel can successfully mint BTC into WBTC. When users use the whale channel to convert WBTC back to BTC, they need to obtain the explicit confirmation of the owner of the whale channel. If the whale owner does not confirm and exceeds the preset time-lock period of the channel, the system will intervene and safely transfer the BTC in the whale channel to the one-way channel, and this operation is called a forced withdrawal.
+Any user is eligible to submit an application to the system to open an exclusive whale channel. After a strict review process, applicants who meet the requirements will be granted the identity of a valid channel. While ensuring the characteristics of decentralization and self-custody, this channel can successfully mint BTC into WBTC. When users use the whale channel to convert WBTC back to BTC, they need to obtain the explicit confirmation of the owner of the whale channel. If the whale owner does not confirm and exceeds the preset time-lock period of the channel, the system will intervene and safely transfer the BTC in the whale channel to the one-way channel, and this operation is called a forced withdrawal.Users can retrieve their BTC via a one-way Channel. 
+
+Once the DHC fails, and the time lock expires, the project will have the right to withdraw BTC assets from the Whale Channel and ensure that these assets are distributed to each user in a fair and orderly manner.
 
 Asset unlocking conditions: 1. The owner of the channel and the committee agree. 2. The time lock for forced withdrawal expires. 3. The escape time lock expires.
 
 ### Retail Two-way Channel
 
-The retail channel, as a special case of the whale channel, has the privilege of being opened exclusively by the Bool Network team. It not only has all the functions of the whale channel but is also renowned for its automation, high-efficiency response, and convenience in handling small-amount operations, bringing users an unprecedented user experience. If it exceeds the preset time-lock period of the channel, the system will transfer the BTC in the retail channel to the one-way channel.
+The retail channel, as a special case of the whale channel, has the privilege of being opened exclusively by the Bool Network team. It not only has all the functions of the whale channel but is also renowned for its automation, high-efficiency response, and convenience in handling small-amount operations, bringing users an unprecedented user experience. 
 
 Asset unlocking conditions: 1.The Bool Network team and the committee agree. 2. The time lock for forced withdrawal expires. 3. The escape time lock expires.
 
@@ -100,7 +102,7 @@ Asset unlocking conditions: 1. The committee agrees. 2. The escape time lock exp
 
 Two time periods that need attention are the "escape lock time" and the "forced withdrawal lock time". Generally, the escape lock time is longer than the forced withdrawal lock time. The system sets the escape lock time equal to the forced withdrawal lock time plus six months, which means that the system has a six-month response time to transfer the assets of abnormal channels to the one-way channel. Meanwhile, the escape lock time of the one-way channel is longer than that of the non-one-way channels, so that users have sufficient response time to convert WBTC back to BTC.
 
-**Note: The escape lock time of the one-way channel > The escape lock time of the non-one-way channels > The forced withdrawal lock time.**
+> **Note: The escape lock time of the one-way channel > The escape lock time of the non-one-way channels > The forced withdrawal lock time.**
 
 ## Working Flow
 
