@@ -4,77 +4,6 @@ By combining Taproot with [DHC](https://docs.bool.network/interoperability-proto
 
 ![architecture](./res/architecture.png)
 
-## What is Taproot?
-
-Taproot is a significant advancement in contract publication on the blockchain, addressing various concerns by enabling settlement through the publication of only relevant contract portions. This innovation not only enhances security but also introduces a new, expansive language for improved flexibility and scalability. 
-
-1. Schnorr Signatures (BIP 340)
-SigHash(Signature Hash) is applied to the transactions, meaning that once a SigHash is applied, the information becomes immutable(unchangeable). If the information is changed, the trasaction loses validity. Nothing can be changed without destorying the SigHash. Previously, a small amount of information could be changed through "malleability" that would not result in the transaction losing its validity.
-
-2. Taproot (BIP 341) [MAST]
-Bitcoin Script Update allows the scripting language to use Schnorr signatures and integrates the Merkelized Alternative Script Trees(MAST).
-
-3. Tapscript
-Tapscript is a collection of "opcodes", which are essentially just lines of codes that execute commands on the Bitcoin protocol that have been updated to make way for the new changes installed by Taproot. It can be referred to as a language, but it is more like an update to Bitcoin Script.
-
-## What is TimeLock?
-
-A Timelock is a smart contract primitive in Bitcoin that restricts the spending of bitcoins until a specified future time or block height. Simply put, Timelocks hinder miners from confirming a transaction until certain conditions are met. 
-
-There are four major options for Bitcoin timelocks - nLocktime, nSequence, OP_CHECKLOCKTIMEVERIFY (OP_CLTV), and OP_CHECKSEQUENCEVERIFY (OP_CSV). Two of these options are script-level time locks, while the other two are transaction-level time locks.
-
-## Multi-Sign Escape Hatch
-
-Multi-Sign Escape Hatch uses the multi-sign tapscript and timelock tapscript to support joint asset maintenance by multiple parties. It has two payment methods, when all signers agree on a certain spending output, then execute a multi-sign trapscript script. If any of them do not agree and the time expires, the time lock trapscript is executed and the output is spent by the validator specified in the script.
-
-### How to build the Multi-Sign Escape Hatch address
-
-Standard Taproot address generation formula:
-
-```text
-Q= P+H(P|c)G
-Q = the final Taproot public key
-P = the internal public key
-H(P|c) = A hash of the internal public key and the commitment
-c = MAST
-```
-
-To sign a transaction with our private key, adjust the private key using the same hash value H (P|c) as the public key and commitment.
-
-Taproot uses a simple trick involving something called a "merkle tree".
-
-```text
-             hash(ab, cd)                  <- Final hash    (the root)
-              /             \                
-      hash(a, b)             hash(c, d)       <- Combined hash (the branches)
-     /          \           /          \    
-    hash(a) hash(b)        hash(c) hash(d)    <- Initial hash  (the leaves)
-[ script(a), script(b), script(c), script(d) ]  
-```
-
-
-Combine the previous knowledge to finally generate the Escape Hatch address:
-
-```text
-Q = PK  +     H(PK | Fh)G                                  
-                |    |                                     
-    +-----------+    +----------------+                    
-    |                                 |                    
-    PK                   +-------Final|hash---+            
-    |                    |                    |            
-    |                    |                    |            
- PK1+PK2                 |                    |            
-                     hash(a)                hash(b)        
-                 Multi-sign script       Timelock script   
-                +-------------------+   +-----------------+
-                | PK1               |   | TIME            |
-                | OP_CHECKSIGVERIFY |   | OP_CLTV         |
-                | PK2               |   | OP_DROP         |
-                | OP_CHECKSIG       |   | PK3             |
-                |                   |   | OP_CHECKSIG     |
-                +-------------------+   +-----------------+
-```
-
 ## Channels
 
 ### Whale Two-way Channel
@@ -103,6 +32,7 @@ Asset unlocking conditions: 1. The committee agrees. 2. The escape time lock exp
 Two time periods that need attention are the "escape lock time" and the "forced withdrawal lock time". Generally, the escape lock time is longer than the forced withdrawal lock time. The system sets the escape lock time equal to the forced withdrawal lock time plus six months, which means that the system has a six-month response time to transfer the assets of abnormal channels to the one-way channel. Meanwhile, the escape lock time of the one-way channel is longer than that of the non-one-way channels, so that users have sufficient response time to convert WBTC back to BTC.
 
 > **Note: The escape lock time of the one-way channel > The escape lock time of the non-one-way channels > The forced withdrawal lock time.**
+
 
 ## Working Flow
 
@@ -235,6 +165,77 @@ The multi-sign path is used to burn the mapper's assets in case of double signat
 - < `MapperPK` >：BTC mapper public key.
 - < `CommitteePK` >：Dynamic committee public key for Bool Network system.
   
+
+## What is Taproot?
+
+Taproot is a significant advancement in contract publication on the blockchain, addressing various concerns by enabling settlement through the publication of only relevant contract portions. This innovation not only enhances security but also introduces a new, expansive language for improved flexibility and scalability. 
+
+1. Schnorr Signatures (BIP 340)
+SigHash(Signature Hash) is applied to the transactions, meaning that once a SigHash is applied, the information becomes immutable(unchangeable). If the information is changed, the trasaction loses validity. Nothing can be changed without destorying the SigHash. Previously, a small amount of information could be changed through "malleability" that would not result in the transaction losing its validity.
+
+2. Taproot (BIP 341) [MAST]
+Bitcoin Script Update allows the scripting language to use Schnorr signatures and integrates the Merkelized Alternative Script Trees(MAST).
+
+3. Tapscript
+Tapscript is a collection of "opcodes", which are essentially just lines of codes that execute commands on the Bitcoin protocol that have been updated to make way for the new changes installed by Taproot. It can be referred to as a language, but it is more like an update to Bitcoin Script.
+
+## What is TimeLock?
+
+A Timelock is a smart contract primitive in Bitcoin that restricts the spending of bitcoins until a specified future time or block height. Simply put, Timelocks hinder miners from confirming a transaction until certain conditions are met. 
+
+There are four major options for Bitcoin timelocks - nLocktime, nSequence, OP_CHECKLOCKTIMEVERIFY (OP_CLTV), and OP_CHECKSEQUENCEVERIFY (OP_CSV). Two of these options are script-level time locks, while the other two are transaction-level time locks.
+
+## Multi-Sign Escape Hatch
+
+Multi-Sign Escape Hatch uses the multi-sign tapscript and timelock tapscript to support joint asset maintenance by multiple parties. It has two payment methods, when all signers agree on a certain spending output, then execute a multi-sign trapscript script. If any of them do not agree and the time expires, the time lock trapscript is executed and the output is spent by the validator specified in the script.
+
+### How to build the Multi-Sign Escape Hatch address
+
+Standard Taproot address generation formula:
+
+```text
+Q= P+H(P|c)G
+Q = the final Taproot public key
+P = the internal public key
+H(P|c) = A hash of the internal public key and the commitment
+c = MAST
+```
+
+To sign a transaction with our private key, adjust the private key using the same hash value H (P|c) as the public key and commitment.
+
+Taproot uses a simple trick involving something called a "merkle tree".
+
+```text
+             hash(ab, cd)                  <- Final hash    (the root)
+              /             \                
+      hash(a, b)             hash(c, d)       <- Combined hash (the branches)
+     /          \           /          \    
+    hash(a) hash(b)        hash(c) hash(d)    <- Initial hash  (the leaves)
+[ script(a), script(b), script(c), script(d) ]  
+```
+
+
+Combine the previous knowledge to finally generate the Escape Hatch address:
+
+```text
+Q = PK  +     H(PK | Fh)G                                  
+                |    |                                     
+    +-----------+    +----------------+                    
+    |                                 |                    
+    PK                   +-------Final|hash---+            
+    |                    |                    |            
+    |                    |                    |            
+ PK1+PK2                 |                    |            
+                     hash(a)                hash(b)        
+                 Multi-sign script       Timelock script   
+                +-------------------+   +-----------------+
+                | PK1               |   | TIME            |
+                | OP_CHECKSIGVERIFY |   | OP_CLTV         |
+                | PK2               |   | OP_DROP         |
+                | OP_CHECKSIG       |   | PK3             |
+                |                   |   | OP_CHECKSIG     |
+                +-------------------+   +-----------------+
+```
 
 ## How to use
 
